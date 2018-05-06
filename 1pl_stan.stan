@@ -12,7 +12,7 @@ parameters {
 }
 model {
   diffs ~ normal(0,6);
-  skills ~ normal(0,6);
+  skills ~ normal(0,1);
   
   success ~ bernoulli_logit(skills[persons] - diffs[items]);
 }

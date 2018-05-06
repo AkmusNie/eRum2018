@@ -38,11 +38,12 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
     name = 'skills'
   )
   
+  # selection of the proper variable with skill and difficulty for each row of observations
   t_diffs_gathered = tf$gather(t_diffs, tf_data$item_0ind)
   t_skills_gathered = tf$gather(t_skills, tf_data$person_0ind)
   
   t_rel_diff = t_skills_gathered - t_diffs_gathered
-  y_ = tf$sigmoid(t_rel_diff)
+  y_ = tf$sigmoid(t_rel_diff) # probability of success
   
   y = tf_data$success
   
@@ -50,9 +51,10 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
   # main loss function. It is responsible for Maximum Likelihood Estimation
   loss_main = tf$reduce_mean(loss_each, name = 'loss')
   
+  # mean and variation of skill values
   mm = tf$nn$moments(t_skills, axes = 0L)
   
-  loss = loss_main +                                 # main cost function
+  loss = loss_main +            # main loss function, to which we add components related to mean and sd
     0.1 * tf$abs(mm[[1]]) +     # skill level should have mean = 0, and sd = 1
     0.05 * tf$abs(mm[[2]] - 1)  # this way other parameters are adjusted to standarised skills values
   
@@ -70,6 +72,7 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
 }
 
 xxx_calc_1pl_tf_init_train <- function(m, sess, learning_rate = 0.001){
+  # we will use Adam optimiser to minimize loss values (maximize total likelihood)
   optimizer = tf$train$AdamOptimizer(learning_rate)
   train = optimizer$minimize(m$loss)
   
@@ -165,12 +168,14 @@ calc_1pl_tf <- function(dat, stop_threshold = 0.0001, step_size = 1000, window_s
   diffs_calc = sess$run(m$t_diffs)
   skills_calc = sess$run(m$t_skills)
 
+  # difficulty values extraction
   item_params = tibble(
     item = dat$items$item,
     diffs_orig = dat$items$diff,
     diffs_calc = diffs_calc
   )
   
+  # skill levels extraction
   person_params = tibble(
     person = dat$persons$person,
     skills_orig = dat$persons$skill,

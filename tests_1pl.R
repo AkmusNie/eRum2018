@@ -52,41 +52,8 @@ plot_ly() %>%
     name = 'greta'
   )
 
-plot_ly() %>%
-  add_markers(
-    data = res_1pl_irt$items,
-    x = ~diffs_orig_centered,
-    y = ~diffs_calc_centered,
-    name = 'irt'
-  ) %>%
-  add_markers(
-    data = res_1pl_me$items,
-    x = ~diffs_orig_centered,
-    y = ~diffs_calc_centered,
-    name = 'me'
-  ) %>%
-  add_markers(
-    data = res_1pl_tf$items,
-    x = ~diffs_orig_centered,
-    y = ~diffs_calc_centered,
-    name = 'tf'
-  ) %>%
-  # add_markers(
-  #   data = res_1pl_stan$items,
-  #   x = ~diffs_orig_centered,
-  #   y = ~diffs_calc_centered,
-  #   name = 'stan'
-  # ) %>%
-  add_markers(
-    data = res_1pl_greta$items,
-    x = ~diffs_orig_centered,
-    y = ~diffs_calc_centered,
-    name = 'greta'
-  )
 
-
-
-
+# skill original vs values estimated
 plot_ly() %>%
   add_markers(
     data = res_1pl_irt$persons,
@@ -106,12 +73,12 @@ plot_ly() %>%
     y = ~skills_calc,
     name = 'tf'
   ) %>%
-  # add_markers(
-  #   data = res_1pl_stan$persons,
-  #   x = ~skills_orig_centered,
-  #   y = ~skills_calc_centered,
-  #   name = 'stan'
-  # ) %>%
+  add_markers(
+    data = res_1pl_stan$persons,
+    x = ~skills_orig,
+    y = ~skills_calc,
+    name = 'stan'
+  ) %>%
   add_markers(
     data = res_1pl_greta$persons,
     x = ~skills_orig,
@@ -119,57 +86,10 @@ plot_ly() %>%
     name = 'greta'
   )
 
-
-
-
-plot_ly() %>%
-  add_markers(
-    data = res_1pl_irt$persons,
-    x = ~skills_orig_centered,
-    y = ~skills_calc_centered,
-    name = 'irt'
-  ) %>%
-  add_markers(
-    data = res_1pl_me$persons,
-    x = ~skills_orig_centered,
-    y = ~skills_calc_centered,
-    name = 'me'
-  ) %>%
-  add_markers(
-    data = res_1pl_tf$persons,
-    x = ~skills_orig_centered,
-    y = ~skills_calc_centered,
-    name = 'tf'
-  ) %>%
-  # add_markers(
-  #   data = res_1pl_stan$persons,
-  #   x = ~skills_orig_centered,
-  #   y = ~skills_calc_centered,
-  #   name = 'stan'
-  # ) %>%
-  add_markers(
-    data = res_1pl_greta$persons,
-    x = ~skills_orig_centered,
-    y = ~skills_calc_centered,
-    name = 'greta'
-  )
-
-
-cor(res_1pl_irt$diffs$diffs_orig_centered, res_1pl_irt$diffs$diffs_calc_centered)
-mean((res_1pl_irt$diffs$diffs_orig_centered - res_1pl_irt$diffs$diffs_calc_centered)^2)
-cor(res_1pl_me$diffs$diffs_orig_centered, res_1pl_me$diffs$diffs_calc_centered)
-mean((res_1pl_me$diffs$diffs_orig_centered - res_1pl_me$diffs$diffs_calc_centered)^2)
-cor(res_1pl_tf$diffs$diffs_orig_centered, res_1pl_tf$diffs$diffs_calc_centered)
-mean((res_1pl_tf$diffs$diffs_orig_centered - res_1pl_tf$diffs$diffs_calc_centered)^2)
-cor(res_1pl_stan$diffs$diffs_orig_centered, res_1pl_stan$diffs$diffs_calc_centered)
-mean((res_1pl_stan$diffs$diffs_orig_centered - res_1pl_stan$diffs$diffs_calc_centered)^2)
-
-cor(res_1pl_irt$skills$skills_orig_centered, res_1pl_irt$skills$skills_calc_centered)
-mean((res_1pl_irt$skills$skills_orig_centered - res_1pl_irt$skills$skills_calc_centered)^2)
-cor(res_1pl_me$skills$skills_orig_centered, res_1pl_me$skills$skills_calc_centered)
-mean((res_1pl_me$skills$skills_orig_centered - res_1pl_me$skills$skills_calc_centered)^2)
-cor(res_1pl_tf$skills$skills_orig_centered, res_1pl_tf$skills$skills_calc_centered)
-mean((res_1pl_tf$skills$skills_orig_centered - res_1pl_tf$skills$skills_calc_centered)^2)
-cor(res_1pl_stan$skills$skills_orig_centered, res_1pl_stan$skills$skills_calc_centered)
-mean((res_1pl_stan$skills$skills_orig_centered - res_1pl_stan$skills$skills_calc_centered)^2)
+# Mean square errors
+res_1pl_irt$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
+res_1pl_me$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
+res_1pl_tf$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
+res_1pl_greta$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
+res_1pl_stan$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
 
