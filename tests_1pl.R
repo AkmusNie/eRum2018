@@ -93,3 +93,18 @@ res_1pl_tf$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>%
 res_1pl_greta$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
 res_1pl_stan$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %>% summarise(mse = mean(diff_diff))
 
+
+
+
+
+# The same, but for a larger sample
+dat_1pl = generate_data_1pl(500, 5000, skill_mean = 0, diff_mean = 0)
+
+res_1pl_irt = calc_1pl_irt(dat_1pl)
+res_1pl_me = calc_1pl_me(dat_1pl)
+res_1pl_tf = calc_1pl_tf(dat_1pl)       # up to 50 000, ends earlier if loss value change stalls (minimum 10 000 iterations)
+res_1pl_greta = calc_1pl_greta(dat_1pl) # 16 000 samples (4000 warmup samples)
+# res_1pl_stan = calc_1pl_stan(dat_1pl) # this one is commented out as it would take too long
+
+
+save(dat_1pl, res_1pl_irt, res_1pl_me, res_1pl_tf, res_1pl_greta, file = 'data/1pl_big.RData', compress = TRUE)
