@@ -21,8 +21,8 @@ xxx_calc_1pl_greta_prep_model <- function(greta_data){
   person_idx = as.integer(greta_data$person)
   y = as_data(as.integer(greta_data$success))
   
-  diffs = normal(0, 3, dim = length(levels(greta_data$item)))
-  skills = normal(0, 3, dim = length(levels(greta_data$person)))
+  diffs = normal(0, 6, dim = length(levels(greta_data$item)))    # weak prior
+  skills = normal(0, 1, dim = length(levels(greta_data$person))) # strong prior
   
   item_diffs = diffs[item_idx]
   person_skills = skills[person_idx]

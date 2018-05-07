@@ -6,7 +6,7 @@ library(tidyr)
 calc_1pl_me <- function(dat){
   t1 = Sys.time()
   
-  # -1            -> we don't want a general bias
+  # -1            -> we don't want an intercept
   # (1 | person)  -> skill of the learner
   # (1 | item)    -> item easiness (negative difficulty)
   m = glmer(success ~ -1 + (1 | person) + (1 | item), data = dat$test_data, family=stats::binomial(logit))
