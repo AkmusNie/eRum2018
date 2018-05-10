@@ -6,6 +6,7 @@ library(tidyr)
 calc_1pl_irt <- function(dat){
   t1 = Sys.time()
   
+  # convert data to a matrix-like form
   resp_matrix = dat$test_data %>%
     spread(item, success) %>%
     mutate(person = as.character(person)) %>%
@@ -15,6 +16,7 @@ calc_1pl_irt <- function(dat){
   
   tam_res = tam(resp_matrix)
   
+  # extract estimated parameters, and put them in the output structure
   item_params = dat$items %>%
     rename(diffs_orig = diff) %>%
     inner_join(

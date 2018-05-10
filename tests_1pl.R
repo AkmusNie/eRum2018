@@ -8,12 +8,18 @@ source('1pl_tf.R')
 source('1pl_greta.R')
 source('1pl_stan.R')
 
+# generating simulated data
 dat_1pl = generate_data_1pl(100, 1000, skill_mean = 0, diff_mean = 0)
 
+# estimation using the specialised package TAM
 res_1pl_irt = calc_1pl_irt(dat_1pl)
+# estimation using logistic regression with random effects
 res_1pl_me = calc_1pl_me(dat_1pl)
-res_1pl_tf = calc_1pl_tf(dat_1pl) # up to 50 000, ends earlier if loss stops changing (minimum 10 000 iterations)
+# estimation using MLE with logloss and gradient descent (tensorflow)
+res_1pl_tf = calc_1pl_tf(dat_1pl) # does up to 50 000 iterations, ends earlier if loss stops changing (minimum 10 000 iterations)
+# estimation using greta (probabilitic programming)
 res_1pl_greta = calc_1pl_greta(dat_1pl) # 16 000 samples (4000 warmup samples)
+# estimation using stan (probabilitic programming)
 res_1pl_stan = calc_1pl_stan(dat_1pl) # 4 chains, each with 4000 samples (1000 warmup samples)
 
 
@@ -97,7 +103,7 @@ res_1pl_stan$items %>% transmute(diff_diff = abs(diffs_orig - diffs_calc) ^ 2) %
 
 
 
-# The same, but for a larger sample
+# The same estimation as above, but for a larger sample
 dat_1pl = generate_data_1pl(500, 5000, skill_mean = 0, diff_mean = 0)
 
 res_1pl_irt = calc_1pl_irt(dat_1pl)

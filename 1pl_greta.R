@@ -5,6 +5,7 @@ library(tidyr)
 # if you want to use an existing python environment installed in your system
 tensorflow::use_python('/usr/local/anaconda3/bin/python')
 
+# function converting data to the format required
 xxx_calc_1pl_greta_prep_data <- function(dat){
   dat$test_data %>%
     mutate(
@@ -16,17 +17,21 @@ xxx_calc_1pl_greta_prep_data <- function(dat){
     )
 }
 
+# function building a model
 xxx_calc_1pl_greta_prep_model <- function(greta_data){
   item_idx = as.integer(greta_data$item)
   person_idx = as.integer(greta_data$person)
   y = as_data(as.integer(greta_data$success))
   
+  # item difficulties an student skill levels 
   diffs = normal(0, 6, dim = length(levels(greta_data$item)))    # weak prior
   skills = normal(0, 1, dim = length(levels(greta_data$person))) # strong prior
   
+  # item difficulties an student skill levels (proper values related for each observation)
   item_diffs = diffs[item_idx]
   person_skills = skills[person_idx]
   
+  # logit and probability of giving a correct answer 
   logit = person_skills - item_diffs
   prob = ilogit(logit)
   distribution(y) = binomial(1, prob)
@@ -54,15 +59,17 @@ xxx_calc_1pl_greta_get_stats = function(d){
   )
 }
 
-
+# function calling other functions. For details please take a look at their comments
 calc_1pl_greta <- function(dat, iter = 16000, warmup = floor(iter/4)){
   t1 = Sys.time()
   
   greta_data = xxx_calc_1pl_greta_prep_data(dat)
   greta_model = xxx_calc_1pl_greta_prep_model(greta_data)
   
+  # runs model samplings
   greta_draws <- mcmc(greta_model, warmup = warmup, n_samples = iter)
   
+  # START extraction of parameters values (it may be implemented much more efficiently)
   greta_draws_m = as.matrix(greta_draws[[1]])
 
   greta_draws_tidy = greta_draws_m %>%
@@ -90,9 +97,10 @@ calc_1pl_greta <- function(dat, iter = 16000, warmup = floor(iter/4)){
   
   skills_sampled = greta_draws_stats %>%
     filter(var_name == 'skills')
+  # END extraction of parameters values
   
   
-  
+  # put estimations in the output structure
   item_params = dat$items %>%
     rename(diffs_orig = diff) %>%
     mutate(

@@ -11,6 +11,7 @@ calc_1pl_me <- function(dat){
   # (1 | item)    -> item easiness (negative difficulty)
   m = glmer(success ~ -1 + (1 | person) + (1 | item), data = dat$test_data, family=stats::binomial(logit))
   
+  # extract estimated parameters, and put them in the output structure
   item_params = dat$items %>%
     rename(diffs_orig = diff) %>%
     inner_join(

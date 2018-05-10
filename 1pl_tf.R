@@ -8,6 +8,7 @@ library(tidyr)
 # if you want to use an existing python environment installed in your system
 use_python('/usr/local/anaconda3/bin/python')
 
+# function converting data to the format required
 xxx_calc_1pl_tf_prep_data <- function(dat){
   dat$test_data %>%
     mutate(
@@ -19,7 +20,10 @@ xxx_calc_1pl_tf_prep_data <- function(dat){
     )
 }
 
+# function building a model
 xxx_calc_1pl_tf_prep_model <- function(tf_data){
+  
+  # tensor containing item difficulties
   t_diffs = tf$Variable(
     tf$random_normal(
       shape = shape(length(levels(tf_data$item))),
@@ -29,6 +33,7 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
     name = 'diffs'
   )
   
+  # tensor containing user skill levels
   t_skills = tf$Variable(
     tf$random_normal(
       shape = shape(length(levels(tf_data$person))),
@@ -42,13 +47,14 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
   t_diffs_gathered = tf$gather(t_diffs, tf_data$item_0ind)
   t_skills_gathered = tf$gather(t_skills, tf_data$person_0ind)
   
+  # logit and probability of giving a correct answer 
   t_rel_diff = t_skills_gathered - t_diffs_gathered
-  y_ = tf$sigmoid(t_rel_diff) # probability of success
+  y_ = tf$sigmoid(t_rel_diff)
   
   y = tf_data$success
   
-  loss_each = tf$losses$log_loss(y, y_)
   # main loss function. It is responsible for Maximum Likelihood Estimation
+  loss_each = tf$losses$log_loss(y, y_)
   loss_main = tf$reduce_mean(loss_each, name = 'loss')
   
   # mean and variation of skill values
@@ -71,11 +77,13 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
   )
 }
 
+# function establishing the optimisation process
 xxx_calc_1pl_tf_init_train <- function(m, sess, learning_rate = 0.001){
-  # we will use Adam optimiser to minimize loss values (maximize total likelihood)
-  optimizer = tf$train$AdamOptimizer(learning_rate)
+  # we will use Adam optimiser to minimize loss value (maximize total likelihood)
+  optimizer = tf$train$AdamOptimizer(learning_rate) # Adam is an improved version of gradient descent
   train = optimizer$minimize(m$loss)
   
+  # initialisation of variables
   sess$run(tf$global_variables_initializer())
   
   m$optimizer = optimizer
@@ -84,6 +92,7 @@ xxx_calc_1pl_tf_init_train <- function(m, sess, learning_rate = 0.001){
   m
 }
 
+# function for iterative improvement of skill and difficulty estimations
 xxx_calc_1pl_tf_train <- function(m, sess, stop_threshold, step_size, window_size, min_step, step_limit){
   step = 0
   stalled = FALSE
@@ -113,6 +122,7 @@ xxx_calc_1pl_tf_train <- function(m, sess, stop_threshold, step_size, window_siz
     (step >= (window_size * step_size) & !stalled & (step < step_limit)) # end when progress will stall or maximum of steps will be achieved
   ) {
     for (i in 1:step_size) {
+      # one iteration of estimations optimisations (forward and backward propagation)
       sess$run(m$train)
       losses = rbind(
         losses,
@@ -153,6 +163,7 @@ xxx_calc_1pl_tf_train <- function(m, sess, stop_threshold, step_size, window_siz
   losses
 }
 
+# function calling other functions. For details please take a look at their comments
 calc_1pl_tf <- function(dat, stop_threshold = 0.0001, step_size = 1000, window_size = 10, min_step = 10000, step_limit = 50000, learning_rate = 0.005){
   t1 = Sys.time()
   
