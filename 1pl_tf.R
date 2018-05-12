@@ -44,6 +44,8 @@ xxx_calc_1pl_tf_prep_model <- function(tf_data){
   )
   
   # selection of the proper variable with skill and difficulty for each row of observations
+  # In my case indexes obtatined from tf_data are implicitly converted to tf$constants,
+  # However, in many cases, it makes more sense to use placeholders (https://www.tensorflow.org/api_docs/python/tf/placeholder) instead
   t_diffs_gathered = tf$gather(t_diffs, tf_data$item_0ind)
   t_skills_gathered = tf$gather(t_skills, tf_data$person_0ind)
   
