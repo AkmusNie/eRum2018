@@ -16,7 +16,7 @@ generate_data_1pl <- function(items = 100, persons = 1000, noise_sd = 0, sample_
     inner_join(mutate(items_t, tmp = 1), by = 'tmp') %>%
     select(-tmp) %>%
     mutate(
-      logit = skill - diff,
+      logit = skill - diff + rnorm(n(), 0, noise_sd),
       prob = 1/(1 + exp(-logit)),
       success = prob >= runif(n())
     )
